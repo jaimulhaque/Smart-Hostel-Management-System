@@ -80,7 +80,7 @@ smart-hostel-management/
 Clone the repository
 
 bash
-git clone https://github.com/yourusername/smart-hostel-management.git
+git clone https://github.com/jaimulhaque/smart-hostel-management.git
 Navigate to project directory
 
 bash
@@ -197,21 +197,17 @@ Commit changes (git commit -m 'Add AmazingFeature')
 Push to branch (git push origin feature/AmazingFeature)
 
 Open a Pull Request
-🤝 Contributing
-Contributions are welcome! Please follow these steps:
-
-Fork the repository
-
-Create a feature branch (git checkout -b feature/AmazingFeature)
-
-Commit changes (git commit -m 'Add AmazingFeature')
-
-Push to branch (git push origin feature/AmazingFeature)
-
-Open a Pull Request
 
 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+📧 Contact
+Jaimul Haque
+👨‍💻 GitHub: @jaimulhaque
+📧 Email: jaimulhaque869@gmail.com
+
+🔗 Project Link: https://github.com/jaimulhaque/smart-hostel-management
+
 🙏 Acknowledgments
 Chart.js - Beautiful charts
 
@@ -223,3 +219,30 @@ Google Fonts - Typography
 
 ⭐ Show your support
 Give a ⭐️ if this project helped you!
+
+📊 Badges
+https://img.shields.io/badge/html5-%2523E34F26.svg?style=for-the-badge&logo=html5&logoColor=white
+https://img.shields.io/badge/css3-%25231572B6.svg?style=for-the-badge&logo=css3&logoColor=white
+https://img.shields.io/badge/javascript-%2523323330.svg?style=for-the-badge&logo=javascript&logoColor=%2523F7DF1E
+https://img.shields.io/badge/chart.js-F5788D.svg?style=for-the-badge&logo=chart.js&logoColor=white
+https://img.shields.io/badge/jquery-%25230769AD.svg?style=for-the-badge&logo=jquery&logoColor=white
+
+Made with ❤️ for the hostel management community
+
+📝 GitHub Repository Settings
+Repository Name:
+text
+smart-hostel-management
+Description (Short - 160 chars):
+text
+Smart Hostel Management System - Modern web platform for students, managers & owners with meal tracking, complaints, expenses & real-time analytics.
+Topics/Tags:
+text
+hostel-management, hostel-system, student-management, 
+dashboard, chartjs, datatables, responsive-design, 
+dark-mode, glassmorphism, hostel-booking, 
+expense-tracker, complaint-management, 
+role-based-access, modern-ui, html-css-javascript
+Website URL (Optional):
+text
+https://jaimulhaque.github.io/smart-hostel-management/
