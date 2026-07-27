@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Hostel – Dashboard</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- DataTables -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+
+  <style>
+    :root{
+      --primary:#6366f1;--primary-dark:#4f46e5;--secondary:#8b5cf6;--accent:#ec4899;
+      --bg:#0f172a;--bg-secondary:#1e293b;--card-bg:rgba(30,41,59,0.7);
+      --text:#f1f5f9;--text-secondary:#cbd5e1;--shadow:0 20px 50px rgba(0,0,0,0.3);
+      --transition:all .4s cubic-bezier(.4,0,.2,1);
+    }
+    [data-theme=light]{
+      --bg:#f8fafc;--bg-secondary:#fff;--card-bg:rgba(255,255,255,.9);
+      --text:#0f172a;--text-secondary:#475569;--shadow:0 20px 50px rgba(0,0,0,.08);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);
+         transition:var(--transition);overflow-x:hidden;position:relative;}
+    body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+                 background:radial-gradient(circle at 20% 50%,rgba(99,102,241,.15)0%,transparent 50%),
+                            radial-gradient(circle at 80% 80%,rgba(139,92,246,.15)0%,transparent 50%);
+                 animation:bgPulse 15s ease-in-out infinite;z-index:-1;}
+    @keyframes bgPulse{0%,100%{opacity:1}50%{opacity:.7}}
+
+    header{background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(139,92,246,.1));
+            backdrop-filter:blur(20px);border-bottom:1px solid rgba(99,102,241,.2);
+            padding:1.5rem;text-align:center;font-size:2rem;font-weight:800;
+            position:sticky;top:0;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,.1);}
+    header span{background:linear-gradient(135deg,var(--primary),var(--secondary),var(--accent));
+                -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+                animation:gradientShift 5s ease infinite;background-size:200% 200%;}
+    @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+    nav{background:rgba(30,41,59,.8);backdrop-filter:blur(20px);padding:1rem 0;
+        display:flex;justify-content:center;gap:1rem;position:sticky;top:74px;z-index:900;
+        border-bottom:1px solid rgba(99,102,241,.2);align-items:center;}
+    nav a{color:var(--text-secondary);text-decoration:none;font-weight:600;
+          padding:.7rem 1.5rem;border-radius:12px;transition:var(--transition);
+          position:relative;overflow:hidden;}
+    nav a::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+                  background:linear-gradient(135deg,var(--primary),var(--secondary));
+                  transition:var(--transition);z-index:-1;}
+    nav a:hover::before,nav a.active::before{left:0}
+    nav a:hover,nav a.active{color:#fff;transform:translateY(-2px);
+                            box-shadow:0 10px 25px rgba(99,102,241,.4)}
+
+    .container{max-width:1400px;margin:3rem auto;padding:0 2rem;
+               display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem;}
+    .card{background:var(--card-bg);backdrop-filter:blur(20px);border-radius:24px;
+          padding:2.5rem;box-shadow:var(--shadow);transition:var(--transition);
+          border:1px solid rgba(99,102,241,.2);position:relative;overflow:hidden;
+          border-image:linear-gradient(135deg,var(--primary),var(--secondary)) 1;}
+    .card:hover{transform:translateY(-15px) scale(1.02) rotateX(5deg);
+                box-shadow:0 30px 60px rgba(99,102,241,.4),0 0 50px rgba(99,102,241,.2);}
+
+    .stat-card{background:linear-gradient(135deg,var(--primary),var(--secondary));
+               color:#fff;padding:2rem;border-radius:24px;text-align:center;
+               transition:var(--transition);box-shadow:0 15px 40px rgba(99,102,241,.3);}
+    .stat-card:nth-child(2){background:linear-gradient(135deg,var(--secondary),var(--accent));}
+    .stat-card:nth-child(3){background:linear-gradient(135deg,var(--accent),var(--primary));}
+    .stat-card:hover{transform:translateY(-10px) scale(1.05);box-shadow:0 25px 50px rgba(99,102,241,.5);}
+
+    .btn{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--primary),var(--secondary));
+         color:#fff;padding:.9rem 2rem;border-radius:12px;text-decoration:none;
+         font-weight:600;margin-top:1.5rem;transition:var(--transition);
+         box-shadow:0 8px 25px rgba(99,102,241,.3);position:relative;overflow:hidden;cursor:pointer;}
+    .btn:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 15px 40px rgba(99,102,241,.5);}
+
+    .form-box{max-width:480px;margin:4rem auto;background:var(--card-bg);
+              backdrop-filter:blur(20px);padding:3rem;border-radius:24px;
+              box-shadow:var(--shadow);border:1px solid rgba(99,102,241,.2);}
+    .form-box h2{text-align:center;margin-bottom:2rem;
+                 background:linear-gradient(135deg,var(--primary),var(--secondary));
+                 -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+                 font-size:2rem;font-weight:800;}
+
+    footer{text-align:center;padding:2rem;background:rgba(30,41,59,.8);
+           backdrop-filter:blur(20px);color:var(--text-secondary);margin-top:4rem;
+           border-top:1px solid rgba(99,102,241,.2);}
+
+    .hidden{display:none !important;}
+    .success-msg{background:linear-gradient(135deg,#10b981,#059669);color:#fff;
+                 padding:1rem 2rem;border-radius:12px;position:fixed;top:100px;right:20px;
+                 z-index:2000;box-shadow:0 10px 30px rgba(16,185,129,.4);
+                 animation:slideInRight .5s ease-out,slideOutRight .5s ease-out 2.5s forwards;}
+    .success-msg.error{background:linear-gradient(135deg,#ef4444,#dc2626);
+                       box-shadow:0 10px 30px rgba(239,68,68,.4);}
+    @keyframes slideInRight{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+    @keyframes slideOutRight{from{transform:translateX(0);opacity:1}to{transform:translateX(400px);opacity:0}}
+
+    .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0f0 50%,#f0f0f0 75%);
+              background-size:200% 100%;animation:skeleton-loading 1.5s infinite;}
+    @keyframes skeleton-loading{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    table.dataTable thead{background:var(--primary);color:#fff;}
+    table.dataTable tbody tr:hover{background:rgba(99,102,241,.1);}
+    .badge{padding:.2rem .6rem;border-radius:12px;font-size:.75rem;color:#fff;}
+    .bg-success{background:#10b981;}.bg-danger{background:#ef4444;}
+    .dataTables_wrapper .dataTables_filter input{background:rgba(30,41,59,.3);
+          border:2px solid rgba(99,102,241,.2);color:var(--text);}
+
+    @media(max-width:768px){
+      header{font-size:1.5rem;padding:1.2rem;}
+      .container{padding:0 1rem;gap:1.5rem;margin:2rem auto;}
+
+/* ==================== SIDEBAR STYLES ==================== */
+#menuBtn {
+  position: fixed;
+  left: 20px;
+  top: 20px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1.4rem;
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+  z-index: 1200;
+  transition: var(--transition);
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#menuBtn:hover {
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 12px 35px rgba(99, 102, 241, 0.6);
+}
+
+#sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 280px;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(20px);
+  padding-top: 100px;
+  transform: translateX(-300px);
+  transition: var(--transition);
+  z-index: 1100;
+  box-shadow: 2px 0 30px rgba(0, 0, 0, 0.3);
+  border-right: 1px solid rgba(99, 102, 241, 0.2);
+  overflow-y: auto;
+}
+
+#sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+}
+
+#sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.5rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  border-left: 4px solid transparent;
+}
+
+#sidebar a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 4px;
+  height: 0;
+  background: linear-gradient(180deg, var(--primary), var(--secondary));
+  transition: var(--transition);
+  transform: translateY(-50%);
+}
+
+#sidebar a:hover::before {
+  height: 100%;
+}
+
+#sidebar a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.1), transparent);
+  transition: var(--transition);
+}
+
+#sidebar a:hover::after {
+  width: 100%;
+}
+
+#sidebar a:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--text);
+  padding-left: 2rem;
+  border-left-color: var(--primary);
+  transform: translateX(5px);
+}
+
+#sidebar a i {
+  font-size: 1.2rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+#sidebar a:hover i {
+  transform: scale(1.2) rotate(10deg);
+  color: var(--primary);
+}
+
+/* Sidebar open state */
+#sidebar.open {
+  transform: translateX(0);
+  animation: slideInLeft 0.4s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-300px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Overlay when sidebar is open */
+#sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1050;
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+#sidebar-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Responsive sidebar */
+@media (max-width: 768px) {
+  #sidebar {
+    width: 250px;
+    padding-top: 80px;
+  }
+
+  #sidebar a {
+    padding: 1rem 1.2rem;
+    font-size: 0.95rem;
+  }
+
+  #menuBtn {
+    width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
+  }
+}
+
+    }
+  </style>
+</head>
+<body>
+<!-- Theme Toggle -->
+<button id="themeToggle" title="Toggle Theme" style="position:fixed;right:20px;top:20px;
+        background:linear-gradient(135deg,var(--primary),var(--secondary));
+        color:#fff;border:none;padding:.8rem;border-radius:50%;cursor:pointer;
+        font-size:1.4rem;box-shadow:0 8px 25px rgba(99,102,241,.4);
+        width:50px;height:50px;display:flex;align-items:center;justify-content:center;">
+  Dark Mode
+</button>
+<!-- Hamburger Menu Button -->
+<button id="menuBtn" style="position:fixed;left:20px;top:20px;
+        background:linear-gradient(135deg,var(--primary),var(--secondary));
+        color:#fff;border:none;padding:.8rem;border-radius:12px;cursor:pointer;
+        font-size:1.4rem;box-shadow:0 8px 25px rgba(99,102,241,.4);z-index:1200;
+        transition:var(--transition);">☰</button>
+
+<!-- Sidebar -->
+<div id="sidebar" style="position:fixed;left:0;top:0;height:100%;width:280px;
+     background:rgba(30,41,59,.95);backdrop-filter:blur(20px);padding-top:100px;
+     transform:translateX(-300px);transition:var(--transition);z-index:1100;
+     box-shadow:2px 0 30px rgba(0,0,0,.3);border-right:1px solid rgba(99,102,241,.2);">
+  <!-- Sidebar content will be populated dynamically -->
+</div>
+
+  <header><span>Smart Hostel Management System</span></header>
+
+  <nav style="background:rgba(30,41,59,.8);backdrop-filter:blur(20px);padding:1rem 0;
+    display:flex;justify-content:flex-end;align-items:center;position:sticky;top:74px;z-index:900;
+    border-bottom:1px solid rgba(99,102,241,.2);padding-right:2rem;">
+  
+  <!-- LOGOUT BUTTON -->
+  <a href="#" id="logoutBtn" class="btn" style="background:linear-gradient(135deg,#ef4444,#dc2626); display:none;">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </a>
+</nav>
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="container hidden"></section>
+
+  <footer>
+    <p>© 2025 Smart Hostel Management System. All rights reserved.</p>
+  </footer>
+
+  <script>
+
+// Prevent back button access after logout
+window.history.pushState(null, null, window.location.href);
+window.addEventListener('popstate', function() {
+  const loggedUser = JSON.parse(localStorage.getItem('loggedUser') || 'null');
+  if (!loggedUser) {
+    // If not logged in, prevent going back
+    window.history.pushState(null, null, window.location.href);
+    showMessage('Please login first.', 'error');
+    window.location.replace('index.html#login');
+  } else {
+    // If logged in, allow back navigation but push state again
+    window.history.pushState(null, null, window.location.href);
+  }
+});
+
+// Prevent page caching
+window.addEventListener('pageshow', function(event) {
+  if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+    // Page was loaded from cache (back/forward button)
+    const loggedUser = JSON.parse(localStorage.getItem('loggedUser') || 'null');
+    if (!loggedUser) {
+      window.location.replace('index.html#login');
+    }
+  }
+});
+
+
+/* ==================== SIDEBAR SETUP ==================== */
+/* ==================== SIDEBAR SETUP ==================== */
+function initSidebar(role) {
+  const sidebar = document.getElementById('sidebar');
+  const menuBtn = document.getElementById('menuBtn');
+  
+  if (!sidebar || !menuBtn) return;
+
+  // Create overlay element
+  let overlay = document.getElementById('sidebar-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+  }
+
+  // Define sidebar links based on role
+  const sidebarLinks = {
+    Student: [
+      { icon: 'fa-home', text: 'Dashboard', action: 'scrollTop' },
+      { icon: 'fa-utensils', text: 'Meal Management', action: 'scrollTo', target: 'mealToggle' },
+      { icon: 'fa-comment-dots', text: 'Submit Complaint', action: 'scrollTo', target: 'complaintText' },
+      { icon: 'fa-history', text: 'My Complaints', action: 'scrollTo', target: 'complaints' },
+      { icon: 'fa-wallet', text: 'Payment Info', action: 'scrollTop' }
+    ],
+    Manager: [
+      { icon: 'fa-home', text: 'Dashboard', action: 'scrollTop' },
+      { icon: 'fa-users', text: 'Students List', action: 'scrollTo', target: 'studentsTable' },
+      { icon: 'fa-shopping-basket', text: 'Market Expenses', action: 'scrollTo', target: 'marketAmount' },
+      { icon: 'fa-chart-line', text: 'Expense Chart', action: 'scrollTo', target: 'marketChartContainer' },
+      { icon: 'fa-exclamation-circle', text: 'Complaints', action: 'scrollTo', target: 'complaints' }
+    ],
+    'Hostel Owner': [
+      { icon: 'fa-home', text: 'Dashboard Overview', action: 'scrollTop' },
+      { icon: 'fa-chart-bar', text: 'Statistics', action: 'scrollTo', target: 'stats' },
+      { icon: 'fa-chart-line', text: 'Revenue Chart', action: 'scrollTo', target: 'revenueChart' },
+      { icon: 'fa-shopping-cart', text: 'Market Records', action: 'scrollTo', target: 'marketTable' },
+      { icon: 'fa-file-invoice-dollar', text: 'Financial Reports', action: 'scrollTop' }
+    ]
+  };
+
+  // Build sidebar HTML with gradient header
+  const links = sidebarLinks[role] || [];
+  sidebar.innerHTML = `
+    <div style="position:absolute;top:0;left:0;right:0;padding:1.5rem;
+                background:linear-gradient(135deg,var(--primary),var(--secondary));
+                border-bottom:1px solid rgba(255,255,255,.1);">
+      <h3 style="color:#fff;font-size:1.1rem;font-weight:700;margin:0;">
+        <i class="fas fa-user-circle"></i> ${role}
+      </h3>
+      <p style="color:rgba(255,255,255,.7);font-size:.85rem;margin:.3rem 0 0;">Navigation Menu</p>
+    </div>
+    ${links.map(link => `
+      <a href="#" data-action="${link.action}" data-target="${link.target || ''}">
+        <i class="fas ${link.icon}"></i> ${link.text}
+      </a>
+    `).join('')}
+  `;
+
+  // Toggle sidebar function
+  function toggleSidebar() {
+    const isOpen = sidebar.style.transform === 'translateX(0px)';
+    sidebar.style.transform = isOpen ? 'translateX(-300px)' : 'translateX(0px)';
+    overlay.classList.toggle('active', !isOpen);
+    
+    // Animate menu button
+    menuBtn.style.transform = isOpen ? 'scale(1)' : 'scale(1.1) rotate(90deg)';
+  }
+
+  // Menu button click
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleSidebar();
+  });
+
+  // Overlay click - close sidebar
+  overlay.addEventListener('click', toggleSidebar);
+
+  // Close sidebar when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+      sidebar.style.transform = 'translateX(-300px)';
+      overlay.classList.remove('active');
+      menuBtn.style.transform = 'scale(1)';
+    }
+  });
+
+  // Handle sidebar link clicks
+  sidebar.addEventListener('click', (e) => {
+    e.preventDefault();
+    const link = e.target.closest('a');
+    if (!link) return;
+
+    const action = link.getAttribute('data-action');
+    const target = link.getAttribute('data-target');
+
+    if (action === 'scrollTop') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (action === 'scrollTo' && target) {
+      const element = document.getElementById(target) || 
+                     document.querySelector(`[id*="${target}"]`) ||
+                     document.querySelector(`#dashboard .card:has(#${target})`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Highlight element briefly
+        const originalBg = element.style.background;
+        element.style.transition = 'all 0.3s ease';
+        element.style.background = 'rgba(99, 102, 241, 0.2)';
+        setTimeout(() => {
+          element.style.background = originalBg;
+        }, 1500);
+      }
+    }
+
+    // Close sidebar after click
+    toggleSidebar();
+  });
+
+  // ESC key to close sidebar
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sidebar.style.transform === 'translateX(0px)') {
+      toggleSidebar();
+    }
+  });
+}
+
+/* ==================== EXISTING CODE CONTINUES ==================== */
+
+
+    /* ==================== DATA ==================== */
+    const dashboardData = {
+      Student: {
+        stats: { meals: 42, rate: 3.5, deposit: 120, due: 15 },
+        mealOn: localStorage.getItem('mealOn') === 'true',
+        complaints: [
+          {id:1, date:'2025-11-10', text:'Wi-Fi slow in room 204'},
+          {id:2, date:'2025-11-08', text:'Hot water not working'}
+        ]
+      },
+      Manager: {
+        stats: { students:248, activeMeals:189, mealsOff:59, collected:8450, due:1230 },
+        students: [
+          {name:'Ali Khan', room:'A-12', deposit:150, due:0, meal:'ON', rate:3.5},
+          {name:'Sara Ahmed', room:'B-03', deposit:100, due:20, meal:'OFF', rate:3.5},
+        ].concat(Array.from({length:18},(_,i)=>({
+          name:`Student ${i+3}`, room:`R-${String(i+10).padStart(2,'0')}`,
+          deposit:Math.round(Math.random()*200), due:Math.round(Math.random()*50),
+          meal:Math.random()>0.3?'ON':'OFF', rate:3.5
+        }))),
+        market: []
+      },
+      'Hostel Owner': {
+        stats: { students:248, meals:189, expenses:12340, revenue:45000, activeMeals:156, rooms:200 },
+        market: [
+          {date:'2025-11-11', amount:320},{date:'2025-11-10', amount:285},
+          {date:'2025-11-09', amount:310},{date:'2025-11-08', amount:295},
+          {date:'2025-11-07', amount:330},{date:'2025-11-06', amount:280}
+        ]
+      }
+    };
+
+    /* ==================== HELPERS ==================== */
+    const $ = s => document.querySelector(s);
+    function showMessage(txt, type='success'){
+      const el = document.createElement('div');
+      el.className = `success-msg ${type==='error'?'error':''}`;
+      el.textContent = txt;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
+    function skeletonCard(){ return `<div class="card skeleton" style="height:180px;"></div>`; }
+
+    /* ==================== THEME ==================== */
+    $('#themeToggle').addEventListener('click', () => {
+      const isLight = document.body.getAttribute('data-theme') === 'light';
+      document.body.setAttribute('data-theme', isLight ? '' : 'light');
+      $('#themeToggle').textContent = isLight ? 'Dark Mode' : 'Light Mode';
+    });
+
+    /* ==================== LOGOUT SETUP (FIXED - Called ONCE at start) ==================== */
+    function setupLogout() {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (!logoutBtn) return;
+
+      // Remove any existing listeners by cloning
+      const newLogoutBtn = logoutBtn.cloneNode(true);
+      logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
+
+     // Add single event listener
+newLogoutBtn.addEventListener('click', function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  console.log('Logout clicked'); // Debug log
+
+  // Clear all session data
+  localStorage.removeItem('loggedUser');
+  localStorage.removeItem('mealOn');
+
+  showMessage('Logged out successfully', 'success');
+
+  // Force full page reload & redirect
+  setTimeout(() => {
+    window.location.replace('index.html#home');
+  }, 800);
+});
+    }
+
+    /* ==================== AUTH ==================== */
+    const loggedUser = JSON.parse(localStorage.getItem('loggedUser') || 'null');
+
+   if (!loggedUser) {
+  showMessage('Please login first.', 'error');
+  setTimeout(() => window.location.href = 'index.html#login', 1500);
+} else {
+  // Show logout button
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) logoutBtn.style.display = 'flex';
+
+  // Setup logout FIRST (before dashboard initialization)
+  setupLogout();
+
+  // Initialize sidebar based on role
+  initSidebar(loggedUser.role);
+
+  // Initialize dashboard
+  initDashboard(loggedUser.role);
+}
+    /* ==================== DASHBOARD INIT ==================== */
+    async function initDashboard(role) {
+      const dash = $('#dashboard');
+      dash.classList.remove('hidden');
+      dash.innerHTML = `<div class="container" style="grid-template-columns:1fr;">${Array(4).fill(skeletonCard()).join('')}</div>`;
+      await new Promise(r => setTimeout(r, 600));
+      dash.innerHTML = buildDashboard(role);
+      postRender(role);
+    }
+
+    /* ==================== BUILD DASHBOARD ==================== */
+    function buildDashboard(role) {
+      const d = dashboardData[role];
+      let html = `<div class="container">`;
+      html += `<div class="card"><h3><i class="fas fa-user-circle"></i> Welcome, ${role}!</h3></div>`;
+
+      const stats = Object.entries(d.stats);
+      html += `<div class="stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-top:1.5rem;">`;
+      const icons = {meals:'utensils',rate:'dollar-sign',deposit:'wallet',due:'exclamation-triangle',
+                     students:'users',activeMeals:'check-circle',mealsOff:'times-circle',
+                     collected:'hand-holding-usd',expenses:'shopping-cart',revenue:'chart-line',rooms:'home'};
+      const colors = ['#6366f1','#8b5cf6','#ec4899'];
+      stats.forEach(([k,v],i) => {
+        const key = k.replace(/([A-Z])/g,' $1').trim();
+        const icon = icons[k.toLowerCase()] || 'chart-bar';
+        html += `<div class="stat-card" style="background:linear-gradient(135deg,${colors[i%3]},${colors[(i+1)%3]});">
+                   <h3><i class="fas fa-${icon}"></i> ${key}</h3>
+                   <p>${typeof v==='number'? (v>=1000? '$'+(v/1000).toFixed(1)+'k' : '$'+v) : v}</p>
+                 </div>`;
+      });
+      html += `</div>`;
+
+      if (role === 'Student') html += studentSection(d);
+      else if (role === 'Manager') html += managerSection(d);
+      else if (role === 'Hostel Owner') html += ownerSection(d);
+
+      html += `</div>`;
+      return html;
+    }
+
+    function studentSection(d) {
+      return `
+        <div class="card" style="margin-top:2rem;">
+          <h3><i class="fas fa-utensils"></i> Meal On/Off</h3>
+          <button class="btn" id="mealToggle">Turn Meal ${d.mealOn?'OFF':'ON'}</button>
+        </div>
+        <div class="card" style="margin-top:2rem;">
+          <h3><i class="fas fa-comment-dots"></i> Submit Complaint</h3>
+          <textarea id="complaintText" placeholder="Describe your issue…" style="width:100%;height:110px;padding:1rem;border-radius:12px;background:rgba(30,41,59,.3);border:2px solid rgba(99,102,241,.2);color:var(--text);margin-bottom:1rem;"></textarea>
+          <button class="btn" id="submitComplaint">Submit</button>
+        </div>
+        <div class="card" style="margin-top:2rem;">
+          <h3><i class="fas fa-history"></i> Recent Complaints</h3>
+          <ul style="list-style:none;padding:0;">
+            ${d.complaints.map(c => `<li style="padding:.5rem 0;border-bottom:1px solid rgba(99,102,241,.1);"><strong>${c.date}</strong>: ${c.text}</li>`).join('')}
+          </ul>
+        </div>`;
+    }
+
+    function managerSection(d) {
+      return `
+        <div class="card" style="margin-top:2rem;">
+          <h3><i class="fas fa-table"></i> Student Details</h3>
+          <table id="studentsTable" class="display" style="width:100%">
+            <thead><tr><th>Name</th><th>Room</th><th>Deposit</th><th>Due</th><th>Meal</th><th>Rate</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="card" style="margin-top:2rem;">
+          <h3><i class="fas fa-shopping-basket"></i> Daily Market Expense</h3>
+          <input type="number" id="marketAmount" placeholder="Amount ($)" style="width:70%;padding:.8rem;border-radius:12px;background:rgba(30,41,59,.3);border:2px solid rgba(99,102,241,.2);color:var(--text);">
+          <button class="btn" id="recordMarket" style="margin-top:.5rem;">Record</button>
+          <div id="marketChartContainer" style="margin-top:1.5rem;height:240px;"><canvas></canvas></div>
+        </div>
+        <div class="card" style="margin-top:2rem;">
+          <h3><i class="fas fa-exclamation-circle"></i> Pending Complaints</h3>
+          <p>No complaints yet.</p>
+        </div>`;
+    }
+
+    function ownerSection(d) {
+      return `
+        <div class="card" style="margin-top:2rem;">
+          <h3><i class="fas fa-chart-line"></i> Revenue vs Expenses (Last 7 Days)</h3>
+          <canvas id="revenueChart" height="260"></canvas>
+        </div>
+        <div class="card" style="margin-top:2rem;">
+          <h3><i class="fas fa-shopping-cart"></i> Market Records</h3>
+          <table id="marketTable" class="display" style="width:100%">
+            <thead><tr><th>Date</th><th>Amount ($)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>`;
+    }
+
+    /* ==================== POST RENDER ==================== */
+    function postRender(role) {
+      // Meal Toggle
+      $('#mealToggle')?.addEventListener('click', () => {
+        const on = !dashboardData.Student.mealOn;
+        dashboardData.Student.mealOn = on;
+        localStorage.setItem('mealOn', on);
+        $('#mealToggle').textContent = `Turn Meal ${on ? 'OFF' : 'ON'}`;
+        showMessage(on ? 'Meal turned ON' : 'Meal turned OFF');
+      });
+
+      // Submit Complaint
+      $('#submitComplaint')?.addEventListener('click', () => {
+        const txt = $('#complaintText').value.trim();
+        if (!txt) return showMessage('Please write something.', 'error');
+        dashboardData.Student.complaints.unshift({
+          id: Date.now(), date: new Date().toISOString().slice(0,10), text: txt
+        });
+        $('#complaintText').value = '';
+        showMessage('Complaint submitted');
+        const ul = $('#dashboard .card ul');
+        if (ul) ul.innerHTML = dashboardData.Student.complaints.map(c => `
+          <li style="padding:.5rem 0;border-bottom:1px solid rgba(99,102,241,.1);">
+            <strong>${c.date}</strong>: ${c.text}
+          </li>`).join('');
+      });
+
+      // Manager: Students Table
+      if (role === 'Manager' && $('#studentsTable')) {
+        $('#studentsTable').DataTable({
+          data: dashboardData.Manager.students,
+          columns: [
+            {data: 'name'}, {data: 'room'},
+            {data: 'deposit', render: d => '$' + d},
+            {data: 'due', render: d => '$' + d},
+            {data: 'meal', render: m => `<span class="badge ${m==='ON'?'bg-success':'bg-danger'}">${m}</span>`},
+            {data: 'rate', render: r => '$' + r}
+          ],
+          pageLength: 10, responsive: true, order: [[0, 'asc']]
+        });
+      }
+
+      // Manager: Market Chart
+      if (role === 'Manager') {
+        const ctx = $('#marketChartContainer canvas').getContext('2d');
+        const chart = new Chart(ctx, {
+          type: 'line',
+          data: { labels: [], datasets: [{ label: 'Daily Expense ($)', data: [], borderColor: '#ec4899', tension: .3 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+        window.managerChart = chart;
+
+        $('#recordMarket')?.addEventListener('click', () => {
+          const amt = parseFloat($('#marketAmount').value);
+          if (isNaN(amt) || amt <= 0) return showMessage('Enter a valid amount', 'error');
+          const today = new Date().toISOString().slice(0,10);
+          dashboardData.Manager.market.unshift({ date: today, amount: amt });
+          $('#marketAmount').value = '';
+          showMessage('Expense recorded');
+          updateMarketChart();
+        });
+        updateMarketChart();
+      }
+
+      // Owner: Revenue Chart
+      if (role === 'Hostel Owner') {
+        const rev = $('#revenueChart');
+        new Chart(rev, {
+          type: 'bar',
+          data: {
+            labels: ['Day 1','Day 2','Day 3','Day 4','Day 5','Day 6','Day 7'],
+            datasets: [
+              { label: 'Revenue', data: [6500,7200,6800,7100,6900,7300,7000], backgroundColor: 'rgba(99,102,241,.7)' },
+              { label: 'Expenses', data: dashboardData['Hostel Owner'].market.map(m => m.amount).reverse(), backgroundColor: 'rgba(236,72,153,.7)' }
+            ]
+          },
+          options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+      }
+
+      // Owner: Market Table
+      if (role === 'Hostel Owner' && $('#marketTable')) {
+        $('#marketTable').DataTable({
+          data: dashboardData['Hostel Owner'].market,
+          columns: [{ data: 'date' }, { data: 'amount', render: d => '$' + d }],
+          order: [[0, 'desc']], pageLength: 7
+        });
+      }
+    }
+
+    function updateMarketChart() {
+      const recent = dashboardData.Manager.market.slice(0,7).reverse();
+      const chart = window.managerChart;
+      chart.data.labels = recent.map(r => r.date);
+      chart.data.datasets[0].data = recent.map(r => r.amount);
+      chart.update();
+    }
+  </script>
+</body>
+</html>
