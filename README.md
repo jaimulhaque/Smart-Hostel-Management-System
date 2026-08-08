@@ -1,10 +1,15 @@
 # 🏨 Smart Hostel Management System
 
-[![HTML5](https://shields.io)](https://mozilla.org)
-[![CSS3](https://shields.io)](https://mozilla.org)
-[![JavaScript](https://shields.io)](https://mozilla.org)
-[![Chart.js](https://shields.io)](https://chartjs.org)
-[![jQuery](https://shields.io)](https://jquery.com)
+### 🛠️ Technology Stack
+
+| Technology | Purpose | Documentation |
+| :--- | :--- | :--- |
+| **HTML5** | Semantic Web Markup | [MDN Web Docs](https://mozilla.org) |
+| **CSS3** | Modern Styling & Animations | [MDN CSS](https://mozilla.org) |
+| **JavaScript** | Dynamic Functionality (ES6+) | [MDN JavaScript](https://mozilla.org) |
+| **Chart.js** | Interactive Data Visualization | [Chart.js Docs](https://chartjs.org) |
+| **jQuery** | DOM Manipulation & Utilities | [jQuery Docs](https://jquery.com) |
+
 
 
 A modern, full-featured, and highly responsive web application designed to streamline hostel operations. It provides an intuitive, role-based dashboard system tailored for students, managers, and hostel owners.
