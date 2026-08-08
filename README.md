@@ -6,6 +6,7 @@
 [![Chart.js](https://shields.io)](https://chartjs.org)
 [![jQuery](https://shields.io)](https://jquery.com)
 
+
 A modern, full-featured, and highly responsive web application designed to streamline hostel operations. It provides an intuitive, role-based dashboard system tailored for students, managers, and hostel owners.
 
 🌐 **Live Demo:** [View Live Application](https://github.io)
