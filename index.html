@@ -895,7 +895,13 @@
         localStorage.setItem('theme', 'light');
       }
     });
-
+    
+    // Load saved theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+  body.setAttribute('data-theme', 'light');
+  themeToggle.textContent = '☀️';
+}
 
 // ============ ADD THIS NEW CODE BELOW ============
 // Show navbar with transition if user logged out
